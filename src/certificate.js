@@ -44,13 +44,33 @@ function _getRequestPromise(host) {
 
     req.on('error', function(err) {
       if(err.code == 'ECONNREFUSED') {
-        resolve(_getCertificateInfo(host, {}));
+        resolve(_getCertificateInfo(host, _errorCert(host)));
       } else {
-        resolve(_getCertificateInfo(host, {}));
+        resolve(_getCertificateInfo(host, _errorCert(host)));
       }
     });
     req.end()
   });
+}
+
+function _errorCert(host) {
+  return {
+    'server': host,
+    'subject': {
+      'org': 'Error fetching cert',
+      'common_name': '-',
+      'sans': '-'
+    },
+    'issuer': {
+      'org': '-',
+      'common_name': '-'
+    },
+    'info': {
+      'valid_from': '-',
+      'valid_to': '-',
+      'days_left': 0
+    }
+  };
 }
 
 function _getCertificateInfo(host, certificate) {
