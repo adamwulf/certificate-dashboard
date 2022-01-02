@@ -35,7 +35,6 @@ function _getRequestPromise(host) {
 
         resolve(certificateInfo);
       });
-    req.end()
     req.setTimeout(config.connectionTimeout);
 
     req.on('timeout',  function (err) {
@@ -48,6 +47,7 @@ function _getRequestPromise(host) {
         resolve(_getCertificateInfo(host, {}));
       }
     });
+    req.end()
   });
 }
 
