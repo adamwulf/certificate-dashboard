@@ -1,6 +1,7 @@
 var Promise = require('promise');
 var https = require('https');
 var Utils = require('./utils.js');
+var http = require('http');
 const config = require('./config');
 const monitoredHosts = require('./monitored-hosts.js');
 
@@ -27,48 +28,48 @@ function getCertificationData() {
 
 function _getRequestPromise(host) {
   return new Promise(function(resolve, reject) {
-    var req = https.request(
-      { hostname: host, port: 443, method: 'GET', agent: false },
-      function(res) {
-        var cert = res.connection.getPeerCertificate();
-        var certificateInfo = _getCertificateInfo(host, cert);
-
-        resolve(certificateInfo);
-      });
+    var req = https.request({ hostname: host, path: '/', port: 443, method: 'GET', agent: false });
     req.setTimeout(config.connectionTimeout);
+
+    req.on('response',  function (res) {
+      var cert = res.connection.getPeerCertificate();
+      var certificateInfo = _getCertificateInfo(host, cert);
+
+      resolve(certificateInfo);
+    });
 
     req.on('timeout',  function (err) {
       this.abort();
-      resolve(_getCertificateInfo(host, {}))
+      resolve(_getCertificateInfo(host, _errorCert(host, "timeout")))
     });
 
     req.on('error', function(err) {
       if(err.code == 'ECONNREFUSED') {
-        resolve(_getCertificateInfo(host, _errorCert(host)));
+        resolve(_getCertificateInfo(host, _errorCert(host, err.code)));
       } else {
-        resolve(_getCertificateInfo(host, _errorCert(host)));
+        resolve(_getCertificateInfo(host, _errorCert(host, err.code)));
       }
     });
     req.end()
   });
 }
 
-function _errorCert(host) {
+function _errorCert(host, err) {
   return {
     'server': host,
     'subject': {
-      'org': 'Error fetching cert',
+      'org': '-',
       'common_name': '-',
       'sans': '-'
     },
     'issuer': {
       'org': '-',
-      'common_name': '-'
+      'common_name': 'Error fetching cert: ' + err
     },
     'info': {
-      'valid_from': '-',
-      'valid_to': '-',
-      'days_left': 0
+      'valid_from': new Date(Date.now() - 86400000),
+      'valid_to': new Date(Date.now() - 86400000),
+      'days_left': '??'
     }
   };
 }
@@ -83,12 +84,12 @@ function _getCertificateInfo(host, certificate) {
     },
     'issuer': {
       'org': certificate.issuer ? certificate.issuer.O : '-',
-      'common_name': certificate.issuer ? certificate.issuer.CN : '-'
+      'common_name': certificate.issuer ? certificate.issuer.CN : 'Unknown issuer'
     },
     'info': {
       'valid_from': Utils.parseDate(certificate.valid_from),
       'valid_to': Utils.parseDate(certificate.valid_to),
-      'days_left': certificate.valid_to ? Utils.getDaysLeft(certificate.valid_to): '-'
+      'days_left': certificate.valid_to ? Utils.getDaysLeft(certificate.valid_to): '??'
     }
   };
 }

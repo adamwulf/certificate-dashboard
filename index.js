@@ -1,6 +1,11 @@
 // Enable promise error logging
 require('promise/lib/rejection-tracking').enable();
 
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+  console.log('Loading: ', process.env.MONITORED_CERT_HOSTS);
+}
+
 var express = require('express');
 var app = express();
 var certificate = require('./src/certificate')

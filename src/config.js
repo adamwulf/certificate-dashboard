@@ -1,5 +1,5 @@
 var config = {
-  connectionTimeout : 1000,
+  connectionTimeout : 5000,
 };
 
 module.exports = config;
