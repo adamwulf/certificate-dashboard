@@ -45,6 +45,8 @@ function _getRequestPromise(host) {
     req.on('error', function(err) {
       if(err.code == 'ECONNREFUSED') {
         resolve(_getCertificateInfo(host, {}));
+      } else {
+        resolve(_getCertificateInfo(host, {}));
       }
     });
     req.end()
