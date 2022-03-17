@@ -13,6 +13,8 @@ $ bin/setup
 $ foreman s
 ```
 
+Note: Running `bin/setup` will reset the .env file. A convenience `run.sh` is provided which will set the port to 5001, copy the saved `.env.bak` to `.env` in case it had been reset, and will start the server.
+
 Environment variables
 
 ```sh
