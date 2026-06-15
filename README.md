@@ -4,6 +4,13 @@ Responsive web app that checks when certificates will expire. Serves HTML & JSON
 
 ![banner](certificate-check.png "Banner app preview")
 
+## Install
+
+```sh
+brew install foreman
+brew install node
+```
+
 ## Running Locally
 
 Make sure you have [Node.js](http://nodejs.org/) and the [Heroku Toolbelt](https://toolbelt.heroku.com/) installed.
