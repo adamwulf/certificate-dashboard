@@ -26,6 +26,10 @@ function getCertificationData() {
   });
 };
 
+function getCertificationDataForHost(host) {
+  return _getRequestPromise(host);
+};
+
 function _getRequestPromise(host) {
   return new Promise(function(resolve, reject) {
     var req = https.request({ hostname: host, path: '/', port: 443, method: 'GET', agent: false });
@@ -95,5 +99,6 @@ function _getCertificateInfo(host, certificate) {
 }
 
 module.exports = {
-  getCertificationData: getCertificationData
+  getCertificationData: getCertificationData,
+  getCertificationDataForHost: getCertificationDataForHost
 };
